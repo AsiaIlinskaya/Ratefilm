@@ -38,7 +38,7 @@ public class UserController {
   }
 
   void validate(User user) {
-    if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+    if (user.getEmail() == null || user.getEmail().isBlank()) {
       log.warn("Email is empty");
       throw new ValidationException("Электронная почта не может быть пустой");
     }
@@ -54,7 +54,7 @@ public class UserController {
       log.warn("Login has space");
       throw new ValidationException("Логин не может содержать пробелы");
     }
-    if ((user.getName() == null) || (user.getName().trim().isEmpty())) {
+    if ((user.getName() == null) || (user.getName().isBlank())) {
       log.info("Name is empty, using login instead");
       user.setName(user.getLogin());
     }

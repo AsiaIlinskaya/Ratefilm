@@ -30,6 +30,7 @@ public class DataStorageController<T> {
   }
 
   public Collection<T> getData() {
+    log.info("GetData call");
     return data.values();
   }
 
