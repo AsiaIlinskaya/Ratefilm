@@ -12,7 +12,7 @@ import java.util.Collection;
 @Slf4j
 public class FilmController {
 
-  private static final DataStorageController<Film> filmStorage = new DataStorageController<>();
+  private static final AbstractController<Film> filmStorage = new FilmStorageController();
 
   @PostMapping
   public Film addFilm(@RequestBody Film film) {
@@ -47,11 +47,11 @@ public class FilmController {
       throw new ValidationException("Максимальная длина описания — 200 символов");
     }
     LocalDate startDate = LocalDate.of(1895, 12, 28);
-    if ((film.getReleaseDate() != null) && (film.getReleaseDate().isBefore(startDate))) {
-      log.warn("Release date too early");
+    if ((film.getReleaseDate() == null) || (film.getReleaseDate().isBefore(startDate))) {
+      log.warn("Release date incorrect");
       throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
     }
-    if ((film.getDuration() != null) && !(film.getDuration() > 0)) {
+    if ((film.getDuration() == null) || (film.getDuration() <= 0)) {
       log.warn("Duration is not positive");
       throw new ValidationException("Продолжительность фильма должна быть положительным числом");
     }

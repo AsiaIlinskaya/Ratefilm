@@ -53,7 +53,7 @@ class UserControllerTest {
     user.setLogin("TestLogin");
     user.setName("Test name");
     user.setEmail("email@test.tst");
-    assertDoesNotThrow(() -> userController.validate(user));
+    assertThrows(ValidationException.class, () -> userController.validate(user));
     user.setBirthday(LocalDate.now());
     assertDoesNotThrow(() -> userController.validate(user));
     user.setBirthday(LocalDate.now().plusDays(1));

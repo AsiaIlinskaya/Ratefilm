@@ -61,7 +61,7 @@ class FilmControllerTest {
     film.setName("Test name");
     film.setDescription("Test description");
     film.setDuration(7200);
-    assertDoesNotThrow(() -> filmController.validate(film));
+    assertThrows(ValidationException.class, () -> filmController.validate(film));
     film.setReleaseDate(LocalDate.of(1895, 12, 28));
     assertDoesNotThrow(() -> filmController.validate(film));
     film.setReleaseDate(LocalDate.of(1895, 12, 27));
@@ -74,7 +74,7 @@ class FilmControllerTest {
     film.setName("Test name");
     film.setDescription("Test description");
     film.setReleaseDate(LocalDate.of(1980, 11, 17));
-    assertDoesNotThrow(() -> filmController.validate(film));
+    assertThrows(ValidationException.class, () -> filmController.validate(film));
     film.setDuration(0);
     assertThrows(ValidationException.class, () -> filmController.validate(film));
     film.setDuration(-1);

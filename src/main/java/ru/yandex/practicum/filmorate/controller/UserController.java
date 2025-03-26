@@ -12,7 +12,7 @@ import java.util.Collection;
 @Slf4j
 public class UserController {
 
-  private static final DataStorageController<User> userStorage = new DataStorageController<>();
+  private static final AbstractController<User> userStorage = new UserStorageController();
 
   @PostMapping
   public User addUser(@RequestBody User user) {
@@ -58,9 +58,9 @@ public class UserController {
       log.info("Name is empty, using login instead");
       user.setName(user.getLogin());
     }
-    if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-      log.warn("Birthday in future");
-      throw new ValidationException("Дата рождения не может быть в будущем");
+    if (user.getBirthday() == null || user.getBirthday().isAfter(LocalDate.now())) {
+      log.warn("Birthday incorrect");
+      throw new ValidationException("Дата рождения не задана или не наступила");
     }
   }
 
