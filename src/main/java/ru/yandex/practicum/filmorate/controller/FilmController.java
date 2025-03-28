@@ -10,34 +10,28 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/films")
 @Slf4j
-public class FilmController {
-
-  private static final AbstractController<Film> filmStorage = new FilmStorageController();
+public class FilmController extends AbstractController<Film> {
 
   @PostMapping
   public Film addFilm(@RequestBody Film film) {
-    log.info("Add new Film");
-    validate(film);
-    int id = filmStorage.nextId();
-    film.setId(id);
-    filmStorage.addItem(id, film);
+    super.addItem(film);
     return film;
   }
 
   @PutMapping
   public Film updateFilm(@RequestBody Film film) {
-    log.info("Update Film " + film.getId());
-    validate(film);
-    filmStorage.updateItem(film.getId(), film);
+    super.updateItem(film);
     return film;
   }
 
   @GetMapping
   public Collection<Film> getAllFilms() {
-    return filmStorage.getData();
+    return super.getData();
   }
 
-  void validate(Film film) {
+  @Override
+  protected void validate(Film film) {
+    super.validate(film);
     if ((film.getName() == null) || (film.getName().isBlank())) {
       log.warn("Name is empty");
       throw new ValidationException("Название не может быть пустым");

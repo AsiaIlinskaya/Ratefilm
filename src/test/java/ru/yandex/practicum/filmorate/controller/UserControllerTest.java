@@ -60,4 +60,9 @@ class UserControllerTest {
     assertThrows(ValidationException.class, () -> userController.validate(user));
   }
 
+  @Test
+  void validateUser_NullObject() {
+    assertThrows(IllegalArgumentException.class, () -> userController.validate(null));
+  }
+
 }

@@ -81,4 +81,9 @@ class FilmControllerTest {
     assertThrows(ValidationException.class, () -> filmController.validate(film));
   }
 
+  @Test
+  void validateFilm_NullObject() {
+    assertThrows(IllegalArgumentException.class, () -> filmController.validate(null));
+  }
+
 }

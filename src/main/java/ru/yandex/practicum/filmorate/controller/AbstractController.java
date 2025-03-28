@@ -7,31 +7,45 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public abstract class AbstractController<T> {
+public abstract class AbstractController<T extends Identifiable> {
   private final Map<Integer, T> data = new HashMap<>();
   private int id = 0;
 
-  public int nextId() {
+  private int getNextId() {
     return ++id;
   }
 
-  public void addItem(int id, T item) {
-    log.info("Adding item " + id);
-    data.put(id, item);
+  public int addItem(T item) {
+    log.info("Add new item");
+    validate(item);
+    int itemId = getNextId();
+    log.info("Storing item with id " + itemId);
+    data.put(itemId, item);
+    item.setId(itemId);
+    return itemId;
   }
 
-  public void updateItem(int id, T item) {
-    if (!data.containsKey(id)) {
-      log.warn("id {} not found", id);
-      throw new ValidationException("Обновление невозможно, идентификатор " + id + "не найден");
+  public void updateItem(T item) {
+    validate(item);
+    int itemId = item.getId();
+    if (!data.containsKey(itemId)) {
+      log.warn("Item with id {} not found", itemId);
+      throw new ValidationException("Обновление невозможно, идентификатор " + itemId + "не найден");
     }
-    log.info("Replacing item " + id);
-    data.put(id, item);
+    log.info("Update item with id " + itemId);
+    data.put(itemId, item);
   }
 
   public Collection<T> getData() {
-    log.info("GetData call");
+    log.info("Get all items");
     return data.values();
+  }
+
+  protected void validate(T item) {
+    if (item == null) {
+      log.warn("Item is null");
+      throw new IllegalArgumentException("Объект не задан");
+    }
   }
 
 }

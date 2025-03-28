@@ -10,34 +10,28 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/users")
 @Slf4j
-public class UserController {
-
-  private static final AbstractController<User> userStorage = new UserStorageController();
+public class UserController extends AbstractController<User> {
 
   @PostMapping
   public User addUser(@RequestBody User user) {
-    log.info("Add new User");
-    validate(user);
-    int id = userStorage.nextId();
-    user.setId(id);
-    userStorage.addItem(id, user);
+    super.addItem(user);
     return user;
   }
 
   @PutMapping
   public User updateUser(@RequestBody User user) {
-    log.info("Update User " + user.getId());
-    validate(user);
-    userStorage.updateItem(user.getId(), user);
+    super.updateItem(user);
     return user;
   }
 
   @GetMapping
   public Collection<User> getAllUsers() {
-    return userStorage.getData();
+    return super.getData();
   }
 
-  void validate(User user) {
+  @Override
+  protected void validate(User user) {
+    super.validate(user);
     if (user.getEmail() == null || user.getEmail().isBlank()) {
       log.warn("Email is empty");
       throw new ValidationException("Электронная почта не может быть пустой");
