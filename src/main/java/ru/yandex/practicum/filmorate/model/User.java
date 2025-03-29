@@ -7,20 +7,20 @@ import ru.yandex.practicum.filmorate.controller.Identifiable;
 import java.time.LocalDate;
 
 /**
- * Film.
+ * User.
  */
 @Data
-public class Film implements Identifiable {
+public class User implements Identifiable {
 
   private int id;
 
+  private String email;
+
+  private String login;
+
   private String name;
 
-  private String description;
-
   @JsonFormat(pattern = "yyyy-MM-dd")
-  private LocalDate releaseDate;
-
-  private Integer duration;
+  private LocalDate birthday;
 
 }
