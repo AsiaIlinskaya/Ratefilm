@@ -92,7 +92,8 @@ public class FilmService {
             case "director,title":
             case "title,director":
                 break;
-            default: throw new ResourceNotFoundException("Не найдены параметры поиска");
+            default:
+                throw new ResourceNotFoundException("Не найдены параметры поиска");
         }
         return filmStorage.searchFilmBy(query, by);
     }

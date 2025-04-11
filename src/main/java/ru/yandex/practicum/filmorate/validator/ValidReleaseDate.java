@@ -15,7 +15,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface ValidReleaseDate {
     String message() default "Дата релиза фильма не может быть раньше {value}";
+
     Class<?>[] groups() default {};
+
     Class<?>[] payload() default {};
+
     String value() default "1895-12-28";
 }

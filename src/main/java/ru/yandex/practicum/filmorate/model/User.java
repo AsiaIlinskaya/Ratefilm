@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.Nullable;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +28,6 @@ public class User {
     private String name;
     @NotNull
     @PastOrPresent(message = "дата рождения не может быть в будущем")
-    private  LocalDate birthday;
+    private LocalDate birthday;
     private Set<Long> friends = new HashSet<>();
 }
