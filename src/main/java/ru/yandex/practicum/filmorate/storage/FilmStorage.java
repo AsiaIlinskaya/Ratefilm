@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface FilmStorage {
     Film create(Film film);
@@ -22,11 +21,7 @@ public interface FilmStorage {
 
     List<Long> getLikesOfFilm(Long filmId);
 
-    List<Film> getFilmsOfDirectorSortByLikesOrYears(Long id, String sortBy);
-
     List<Film> findCommonFilms(Long userId, Long friendId);
 
-    List<Film> searchFilmBy(String query, String by);
-
-    List<Film> getMostPopularByGenreYear(Optional<Integer> year, Optional<Long> genreId, Integer limit);
+    List<Film> getMostPopular(Integer limit);
 }

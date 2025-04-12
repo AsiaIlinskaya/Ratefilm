@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -56,28 +55,13 @@ public class FilmController {
         return filmService.removeLike(filmId, userId);
     }
 
-    @GetMapping("/director/{directorId}")
-    public List<Film> getFilmsOfDirectorSortByLikesOrYears(@PathVariable("directorId") Long id,
-                                                           @RequestParam(defaultValue = "likes") String sortBy) {
-        return filmService.getFilmsOfDirectorSortByLikesOrYears(id, sortBy);
-    }
-
     @GetMapping("/common")
     public List<Film> findCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
         return filmService.findCommonFilms(userId, friendId);
     }
 
-    @GetMapping("/search")
-    public List<Film> getSearchFilmsBy(
-            @RequestParam String query,
-            @RequestParam String by) {
-        return filmService.searchFilmBy(query, by);
-    }
-
     @GetMapping("/popular")
-    public List<Film> getMostPopularByGenreYear(@RequestParam Optional<Integer> year,
-                                                @RequestParam Optional<Long> genreId,
-                                                @RequestParam(defaultValue = "10") @Positive Integer count) {
-        return filmService.getMostPopularByGenreYear(year, genreId, count);
+    public List<Film> getMostPopular(@RequestParam(defaultValue = "10") @Positive Integer count) {
+        return filmService.getMostPopular(count);
     }
 }

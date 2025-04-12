@@ -65,5 +65,4 @@ public class UserController {
                                         @PathVariable("otherId") Long otherUserId) {
         return userService.findCommonFriends(userId, otherUserId);
     }
-
 }

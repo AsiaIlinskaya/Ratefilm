@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -68,15 +67,6 @@ public class FilmService {
         return filmStorage.findById(filmId);
     }
 
-    public List<Film> getFilmsOfDirectorSortByLikesOrYears(Long id, String sortBy) {
-        List<Film> films = filmStorage.getFilmsOfDirectorSortByLikesOrYears(id, sortBy);
-        if (films.isEmpty()) {
-            throw new ResourceNotFoundException("Режиссер не найден");
-        } else {
-            return films;
-        }
-    }
-
     public List<Film> findCommonFilms(Long userId, Long friendId) {
         if (userStorage.findById(userId) == null || userStorage.findById(friendId) == null) {
             throw new ResourceNotFoundException("Пользователь не найден");
@@ -85,20 +75,7 @@ public class FilmService {
         return filmStorage.findCommonFilms(userId, friendId);
     }
 
-    public List<Film> searchFilmBy(String query, String by) {
-        switch (by) {
-            case "director":
-            case "title":
-            case "director,title":
-            case "title,director":
-                break;
-            default:
-                throw new ResourceNotFoundException("Не найдены параметры поиска");
-        }
-        return filmStorage.searchFilmBy(query, by);
-    }
-
-    public List<Film> getMostPopularByGenreYear(Optional<Integer> year, Optional<Long> genreId, Integer limit) {
-        return filmStorage.getMostPopularByGenreYear(year, genreId, limit);
+    public List<Film> getMostPopular(Integer limit) {
+        return filmStorage.getMostPopular(limit);
     }
 }
