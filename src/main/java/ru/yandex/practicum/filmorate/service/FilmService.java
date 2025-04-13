@@ -67,14 +67,6 @@ public class FilmService {
         return filmStorage.findById(filmId);
     }
 
-    public List<Film> findCommonFilms(Long userId, Long friendId) {
-        if (userStorage.findById(userId) == null || userStorage.findById(friendId) == null) {
-            throw new ResourceNotFoundException("Пользователь не найден");
-        }
-
-        return filmStorage.findCommonFilms(userId, friendId);
-    }
-
     public List<Film> getMostPopular(Integer limit) {
         return filmStorage.getMostPopular(limit);
     }
