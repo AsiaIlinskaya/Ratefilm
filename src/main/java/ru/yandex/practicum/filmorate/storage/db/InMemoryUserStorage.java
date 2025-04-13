@@ -24,21 +24,16 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        if (!users.containsKey(user.getId())) {
-            throw new ResourceNotFoundException("Пользователь не найден");
-        }
+        findById(user.getId());
         users.put(user.getId(), user);
         return user;
     }
 
     @Override
     public Long delete(Long id) {
-        if (!users.containsKey(id)) {
-            throw new ResourceNotFoundException("Пользователь не найден");
-        }
+        findById(id);
         users.remove(id);
         friends.remove(id);
-        // Удаляем из друзей у других пользователей
         friends.values().forEach(friendSet -> friendSet.remove(id));
         return id;
     }
@@ -52,7 +47,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User findById(Long userId) {
         User user = users.get(userId);
         if (user == null) {
-            throw new ResourceNotFoundException("Пользователь не найден");
+            throw new ResourceNotFoundException(String.format("Пользователь с id %d не найден", userId));
         }
         return user;
     }
@@ -73,17 +68,15 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> findAllFriends(Long userId) {
-        if (!friends.containsKey(userId)) {
-            throw new ResourceNotFoundException("Пользователь не найден");
-        }
+        findById(userId);
         return friends.get(userId).stream()
                 .map(this::findById)
                 .toList();
     }
 
+    @Override
     public List<User> findCommonFriends(Long userId, Long otherUserId) {
         validateUserIds(userId, otherUserId);
-
         Set<Long> commonFriendsIds = new HashSet<>(friends.get(userId));
         commonFriendsIds.retainAll(friends.get(otherUserId));
 

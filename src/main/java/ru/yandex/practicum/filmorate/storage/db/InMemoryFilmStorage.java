@@ -22,18 +22,14 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        if (!films.containsKey(film.getId())) {
-            throw new ResourceNotFoundException("Фильм не найден");
-        }
+        findById(film.getId());
         films.put(film.getId(), film);
         return film;
     }
 
     @Override
     public Long delete(Long id) {
-        if (!films.containsKey(id)) {
-            throw new ResourceNotFoundException("Фильм не найден");
-        }
+        findById(id);
         films.remove(id);
         return id;
     }
@@ -47,7 +43,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film findById(Long id) {
         Film film = films.get(id);
         if (film == null) {
-            throw new ResourceNotFoundException("Фильм не найден");
+            throw new ResourceNotFoundException(String.format("Фильм с id %d не найден", id));
         }
         return film;
     }
