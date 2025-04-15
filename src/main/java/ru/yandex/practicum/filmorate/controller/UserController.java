@@ -1,61 +1,68 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 @Slf4j
-public class UserController extends AbstractController<User> {
+public class UserController {
+    private final UserService userService;
 
-  @PostMapping
-  public User addUser(@RequestBody User user) {
-    super.addItem(user);
-    return user;
-  }
+    @PostMapping
+    public User add(@Valid @RequestBody User user) {
+        return userService.create(user);
+    }
 
-  @PutMapping
-  public User updateUser(@RequestBody User user) {
-    super.updateItem(user);
-    return user;
-  }
+    @PutMapping
+    public User update(@Valid @RequestBody User user) {
+        return userService.update(user);
+    }
 
-  @GetMapping
-  public Collection<User> getAllUsers() {
-    return super.getData();
-  }
+    @DeleteMapping("/{userId}")
+    public void removeById(@PathVariable Long userId) {
+        userService.removeById(userId);
+    }
 
-  @Override
-  protected void validate(User user) {
-    super.validate(user);
-    if (user.getEmail() == null || user.getEmail().isBlank()) {
-      log.warn("Email is empty");
-      throw new ValidationException("Электронная почта не может быть пустой");
+    @GetMapping
+    public List<User> findAll() {
+        return userService.findAll();
     }
-    if (!user.getEmail().contains("@")) {
-      log.warn("Email @ not found");
-      throw new ValidationException("Электронная почта должна содержать символ @");
-    }
-    if (user.getLogin() == null || user.getLogin().isEmpty())  {
-      log.warn("Login is empty");
-      throw new ValidationException("Логин не может быть пустым");
-    }
-    if (user.getLogin().contains(" ")) {
-      log.warn("Login has space");
-      throw new ValidationException("Логин не может содержать пробелы");
-    }
-    if ((user.getName() == null) || (user.getName().isBlank())) {
-      log.info("Name is empty, using login instead");
-      user.setName(user.getLogin());
-    }
-    if (user.getBirthday() == null || user.getBirthday().isAfter(LocalDate.now())) {
-      log.warn("Birthday incorrect");
-      throw new ValidationException("Дата рождения не задана или не наступила");
-    }
-  }
 
+    @GetMapping("/{id}")
+    public User findById(@PathVariable("id") Long id) {
+        return userService.findById(id);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable("id") Long id,
+                          @PathVariable("friendId") Long friendId) {
+        log.info(id.toString());
+        log.info(friendId.toString());
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User removeFriend(@PathVariable("id") Long userId,
+                             @PathVariable("friendId") Long friendId) {
+        return userService.removeFriend(userId, friendId);
+    }
+
+    @GetMapping("{id}/friends")
+    public List<User> findAllFriends(@PathVariable("id") Long userId) {
+        return userService.findAllFriends(userId);
+    }
+
+    @GetMapping("{id}/friends/common/{otherId}")
+    public List<User> findCommonFriends(@PathVariable("id") Long userId,
+                                        @PathVariable("otherId") Long otherUserId) {
+        return userService.findCommonFriends(userId, otherUserId);
+    }
 }

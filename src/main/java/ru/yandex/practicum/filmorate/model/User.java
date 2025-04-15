@@ -1,26 +1,33 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import ru.yandex.practicum.filmorate.controller.Identifiable;
+import jakarta.validation.constraints.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * User.
- */
-@Data
-public class User implements Identifiable {
-
-  private int id;
-
-  private String email;
-
-  private String login;
-
-  private String name;
-
-  @JsonFormat(pattern = "yyyy-MM-dd")
-  private LocalDate birthday;
-
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
+@SuperBuilder
+@NoArgsConstructor
+public class User {
+    @EqualsAndHashCode.Exclude
+    private Long id;
+    @NotBlank
+    @Email(message = "электронная почта не может быть пустой и должна содержать символ @")
+    private String email;
+    @NotBlank
+    @Pattern(regexp = "^\\S+$", message = "Логин не может быть пустым и содержать пробелы")
+    private String login;
+    @Nullable
+    private String name;
+    @NotNull
+    @PastOrPresent(message = "дата рождения не может быть в будущем")
+    private LocalDate birthday;
+    private Set<Long> friends = new HashSet<>();
 }
