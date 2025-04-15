@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.db.FilmDbStorage;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -93,18 +94,28 @@ class FilmDbStorageTest {
 
     @Test
     void findAllFilms() {
-        filmStorage.create(testFilm);
-        Film anotherFilm = Film.builder()
-                .name("Another Film")
-                .description("Another Description")
+        Film film1 = filmStorage.create(Film.builder()
+                .name("Film 1")
+                .description("Description 1")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(120)
+                .mpa(new Mpa(1L, "G"))
+                .genres(Set.of(new Genre(1L, "Комедия")))
+                .build());
+
+        Film film2 = filmStorage.create(Film.builder()
+                .name("Film 2")
+                .description("Description 2")
                 .releaseDate(LocalDate.of(2001, 1, 1))
                 .duration(130)
                 .mpa(new Mpa(2L, "PG"))
-                .build();
-        filmStorage.create(anotherFilm);
+                .genres(Collections.emptySet())
+                .build());
 
         List<Film> films = filmStorage.findAll();
 
         assertThat(films).hasSize(2);
+        assertThat(films.get(0).getGenres()).hasSize(1);
+        assertThat(films.get(1).getGenres()).isEmpty();
     }
 }
