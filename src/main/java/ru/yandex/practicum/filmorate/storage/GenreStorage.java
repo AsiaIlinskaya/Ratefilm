@@ -8,4 +8,5 @@ public interface GenreStorage {
     Map<Long, Genre> findAll();
 
     Genre findById(Long id);
+
 }

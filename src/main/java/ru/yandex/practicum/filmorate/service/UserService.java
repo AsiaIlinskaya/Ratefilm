@@ -54,23 +54,11 @@ public class UserService {
     }
 
     public List<User> findAllFriends(Long id) {
-        userStorage.findById(id);
         return userStorage.findAllFriends(id);
     }
 
     public List<User> findCommonFriends(Long id, Long friendId) {
-        userStorage.findById(id);
-        userStorage.findById(friendId);
-        Set<User> friends = new HashSet<>(userStorage.findAllFriends(id));
-        Set<User> otherFriends = new HashSet<>(userStorage.findAllFriends(friendId));
-
-        if (friends.isEmpty() || otherFriends.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return friends.stream()
-                .filter(otherFriends::contains)
-                .collect(Collectors.toList());
+        return userStorage.findCommonFriends(id, friendId);
     }
 
     private void fillEmptyName(User user) {

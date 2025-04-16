@@ -190,9 +190,6 @@ public class FilmDbStorage implements FilmStorage {
                 .build();
         log.info("Film = {}", film);
 
-        film.setGenres(getGenresOfFilm(film.getId()).stream().sorted(Comparator.comparingLong(Genre::getId))
-                .collect(Collectors.toCollection(LinkedHashSet::new)));
-
         film.setLikesUser(new HashSet<>(getLikesOfFilm(film.getId())));
         return film;
     }

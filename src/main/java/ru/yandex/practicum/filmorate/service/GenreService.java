@@ -16,10 +16,16 @@ public class GenreService {
     private final GenreStorage genreStorage;
 
     public Collection<Genre> findAll() {
-        return Collections.unmodifiableCollection(genreStorage.findAll().values());
+        log.debug("Запрос на получение всех жанров");
+        Collection<Genre> genres = Collections.unmodifiableCollection(genreStorage.findAll().values());
+        log.debug("Получено {} жанров", genres.size());
+        return genres;
     }
 
     public Genre findById(Long id) {
-        return genreStorage.findById(id);
+        log.debug("Запрос на получение жанра с id {}", id);
+        Genre genre = genreStorage.findById(id);
+        log.debug("Найден жанр: {}", genre);
+        return genre;
     }
 }

@@ -30,9 +30,6 @@ public class UserDbStorage implements UserStorage {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sqlQuery = "INSERT INTO \"USERS\" (EMAIL, LOGIN, BIRTHDAY, NAME) VALUES (?, ?, ?, ?)";
 
-        if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
         jdbcTemplate.update(
                 connection -> {
                     PreparedStatement ps =
@@ -53,9 +50,6 @@ public class UserDbStorage implements UserStorage {
     public User update(User user) {
         String sqlQuery = "UPDATE \"USERS\" SET EMAIL = ?, LOGIN = ?, BIRTHDAY = ?, NAME = ? WHERE ID = ?";
 
-        if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(), user.getBirthday(), user.getName(),
                 user.getId());
         return findById(user.getId());
@@ -122,7 +116,10 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId);
     }
 
+    @Override
     public List<User> findCommonFriends(Long userId, Long otherUserId) {
+        findById(userId);
+        findById(otherUserId);
         String sqlQuery = "SELECT * FROM \"USERS\" AS U WHERE U.ID IN (SELECT F.FRIENDS_ID " +
                 "FROM USER_FRIENDS AS F WHERE F.USER_ID = ? " +
                 "INTERSECT SELECT F.FRIENDS_ID FROM USER_FRIENDS AS F WHERE F.USER_ID = ?);";

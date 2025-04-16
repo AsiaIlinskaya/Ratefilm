@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -21,6 +22,7 @@ public class FilmService {
 
     public Film create(Film film) {
         mpaStorage.findById(film.getMpa().getId());
+        film.setGenres(film.getGenres());
         return filmStorage.create(film);
     }
 

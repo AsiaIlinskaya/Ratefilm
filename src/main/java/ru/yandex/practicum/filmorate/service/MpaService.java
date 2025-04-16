@@ -16,10 +16,16 @@ public class MpaService {
     private final MpaStorage mpaStorage;
 
     public Collection<Mpa> findAll() {
-        return Collections.unmodifiableCollection(mpaStorage.findAll().values());
+        log.debug("Запрос на получение всех рейтингов MPA");
+        Collection<Mpa> mpaRatings = Collections.unmodifiableCollection(mpaStorage.findAll().values());
+        log.debug("Получено {} рейтингов MPA", mpaRatings.size());
+        return mpaRatings;
     }
 
     public Mpa findById(Long id) {
-        return mpaStorage.findById(id);
+        log.debug("Запрос на получение рейтинга MPA с id {}", id);
+        Mpa mpa = mpaStorage.findById(id);
+        log.debug("Найден рейтинг MPA: {}", mpa);
+        return mpa;
     }
 }
