@@ -114,6 +114,7 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "SELECT F.*, R.ID MPA_ID, R.NAME MPA_NAME FROM FILMS AS F JOIN RATING AS R ON F.RATING_ID = R.ID " +
                 " WHERE F.ID = ?;";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
+
         if (filmRows.next()) {
             Film film = Film.builder()
                     .id(filmRows.getLong("ID"))
@@ -124,28 +125,23 @@ public class FilmDbStorage implements FilmStorage {
                     .mpa(new Mpa(filmRows.getLong("MPA_ID"), filmRows.getString("MPA_NAME")))
                     .build();
 
-            film.setGenres(getGenresOfFilm(id).stream().sorted(Comparator.comparingLong(Genre::getId))
-                    .collect(Collectors.toCollection(LinkedHashSet::new)));
-            film.setLikesUser(new HashSet<>(getLikesOfFilm(film.getId())));
+            Map<Long, Set<Genre>> genresMap = getGenresByFilmIds(Collections.singletonList(id));
+            Set<Genre> genres = genresMap.getOrDefault(id, Collections.emptySet())
+                    .stream()
+                    .sorted(Comparator.comparingLong(Genre::getId))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            film.setGenres(genres);
 
+            Map<Long, Set<Long>> likesMap = getLikesByFilmIds(Collections.singletonList(id));
+            Set<Long> likes = likesMap.getOrDefault(id, Collections.emptySet());
+            film.setLikesUser(likes);
 
             log.info("Найден фильм с id {}", id);
             return film;
         }
+
         log.warn("Фильм с id {} не найден", id);
         throw new ResourceNotFoundException(String.format("Фильм с id %d не найден", id));
-    }
-
-    private List<Genre> getGenresOfFilm(Long filmId) {
-        String queryForFilmGenres = "SELECT FG.FILM_ID, FG.GENRE_ID, G.NAME FROM FILM_GENRE FG" +
-                " JOIN GENRE G ON G.ID = FG.GENRE_ID WHERE FILM_ID = ?;";
-        return jdbcTemplate.query(queryForFilmGenres, this::mapRowToGenre, filmId);
-    }
-
-    @Override
-    public List<Long> getLikesOfFilm(Long filmId) {
-        String queryForFilmLikes = "SELECT USER_ID ID FROM FILM_LIKES WHERE FILM_ID = ?;";
-        return jdbcTemplate.query(queryForFilmLikes, this::mapRowToLike, filmId);
     }
 
     @Override
@@ -178,6 +174,50 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, this::mapRowToFilm, limit);
     }
 
+    @Override
+    public Map<Long, Set<Genre>> getGenresByFilmIds(List<Long> filmIds) {
+        if (filmIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        String inClause = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        String sql = "SELECT FG.FILM_ID, G.ID AS GENRE_ID, G.NAME " +
+                "FROM FILM_GENRE FG " +
+                "JOIN GENRE G ON FG.GENRE_ID = G.ID " +
+                "WHERE FG.FILM_ID IN (" + inClause + ")";
+
+        Map<Long, Set<Genre>> result = new HashMap<>();
+
+        jdbcTemplate.query(sql, rs -> {
+            Long filmId = rs.getLong("FILM_ID");
+            Genre genre = new Genre(rs.getLong("GENRE_ID"), rs.getString("NAME"));
+            result.computeIfAbsent(filmId, k -> new HashSet<>()).add(genre);
+        }, filmIds.toArray());
+
+        return result;
+    }
+
+
+    @Override
+    public Map<Long, Set<Long>> getLikesByFilmIds(List<Long> filmIds) {
+        if (filmIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        String inClause = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        String sql = "SELECT FILM_ID, USER_ID FROM FILM_LIKES WHERE FILM_ID IN (" + inClause + ")";
+
+        Map<Long, Set<Long>> result = new HashMap<>();
+
+        jdbcTemplate.query(sql, rs -> {
+            Long filmId = rs.getLong("FILM_ID");
+            Long userId = rs.getLong("USER_ID");
+            result.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
+        }, filmIds.toArray());
+
+        return result;
+    }
+
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
         log.info("Film build start>>>>>");
         Film film = Film.builder()
@@ -189,16 +229,6 @@ public class FilmDbStorage implements FilmStorage {
                 .mpa(new Mpa(rs.getLong("MPA_ID"), rs.getString("MPA_NAME")))
                 .build();
         log.info("Film = {}", film);
-
-        film.setLikesUser(new HashSet<>(getLikesOfFilm(film.getId())));
         return film;
-    }
-
-    private Genre mapRowToGenre(ResultSet rs, int rowNum) throws SQLException {
-        return new Genre(rs.getLong("GENRE_ID"), rs.getString("NAME"));
-    }
-
-    private Long mapRowToLike(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getLong("ID");
     }
 }

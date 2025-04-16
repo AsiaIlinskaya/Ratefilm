@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,9 +21,9 @@ public class FilmService {
     private final UserStorage userStorage;
     private final MpaStorage mpaStorage;
 
+
     public Film create(Film film) {
         mpaStorage.findById(film.getMpa().getId());
-        film.setGenres(film.getGenres());
         return filmStorage.create(film);
     }
 
@@ -34,7 +36,9 @@ public class FilmService {
     }
 
     public List<Film> findAll() {
-        return filmStorage.findAll();
+        List<Film> films = filmStorage.findAll();
+        enrichFilmsWithData(films);
+        return films;
     }
 
     public Film findById(Long id) {
@@ -56,6 +60,32 @@ public class FilmService {
     }
 
     public List<Film> getMostPopular(Integer limit) {
-        return filmStorage.getMostPopular(limit);
+        List<Film> films = filmStorage.getMostPopular(limit);
+        enrichFilmsWithData(films);
+        return films;
+    }
+
+    private void enrichFilmsWithData(List<Film> films) {
+        if (films.isEmpty()) {
+            return;
+        }
+
+        List<Long> filmIds = films.stream()
+                .map(Film::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, Set<Genre>> genresByFilmId = filmStorage.getGenresByFilmIds(filmIds);
+        Map<Long, Set<Long>> likesByFilmId = filmStorage.getLikesByFilmIds(filmIds);
+
+        films.forEach(film -> {
+            Set<Genre> genres = genresByFilmId.getOrDefault(film.getId(), Collections.emptySet())
+                    .stream()
+                    .sorted(Comparator.comparingLong(Genre::getId))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            film.setGenres(genres);
+
+            Set<Long> likes = likesByFilmId.getOrDefault(film.getId(), Collections.emptySet());
+            film.setLikesUser(likes);
+        });
     }
 }
