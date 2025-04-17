@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+
 import java.util.*;
 
 @Service
@@ -20,6 +21,7 @@ public class UserService {
     }
 
     public User update(User user) {
+        findById(user.getId());
         fillEmptyName(user);
         return userStorage.update(user);
     }
@@ -37,11 +39,15 @@ public class UserService {
     }
 
     public User addFriend(Long id, Long friendId) {
+        userStorage.findById(id);
+        userStorage.findById(friendId);
         userStorage.addFriend(id, friendId);
         return userStorage.findById(id);
     }
 
     public User removeFriend(Long id, Long friendId) {
+        userStorage.findById(id);
+        userStorage.findById(friendId);
         userStorage.removeFriend(id, friendId);
         return userStorage.findById(id);
     }
@@ -51,7 +57,7 @@ public class UserService {
     }
 
     public List<User> findCommonFriends(Long id, Long friendId) {
-        return userStorage.findCommonFriends(id,friendId);
+        return userStorage.findCommonFriends(id, friendId);
     }
 
     private void fillEmptyName(User user) {
@@ -59,4 +65,5 @@ public class UserService {
             user.setName(user.getLogin());
         }
     }
+
 }
